@@ -1,4 +1,5 @@
 import cgi
+import json
 from pathlib import Path
 from database import conn
 # NEW
@@ -41,6 +42,7 @@ def application(environ, start_response):
     method = environ["REQUEST_METHOD"]
     body = b"Content Not Found"
     status = "404 Not Found"
+    content_type = "text/html"
 
     if path == "/" and method == "GET":
         posts = get_posts_from_database()
@@ -50,6 +52,12 @@ def application(environ, start_response):
         )
         status = "200 OK"
 
+    elif path == "/api" and method == "GET":
+        posts = get_posts_from_database()
+        status = "200 OK"
+        body = json.dumps(posts).encode("utf-8")
+        content_type = "application/json"  # Serializacao
+
     elif path.split("/")[-1].isdigit() and method == "GET":
         post_id = path.split("/")[-1]
         body = render_template(
@@ -57,6 +65,7 @@ def application(environ, start_response):
             post=get_posts_from_database(post_id=post_id)[0],
         )
         status = "200 OK"
+
 
     elif path == "/new" and method == "POST":
         form = cgi.FieldStorage(
@@ -71,7 +80,7 @@ def application(environ, start_response):
         body = render_template("form.template.html")
         status = "200 OK"
 
-    headers = [("Content-type", "text/html")]
+    headers = [("Content-type", content_type)]
     start_response(status, headers)
     return [body]
 
