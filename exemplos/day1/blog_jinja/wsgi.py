@@ -18,8 +18,6 @@ def add_new_post(post):
     )
     conn.commit()
 
-
-# NEW
 def render_template(template_name, **context):
     template = env.get_template(template_name)
     return template.render(**context).encode("utf-8")
@@ -84,8 +82,12 @@ def application(environ, start_response):
     start_response(status, headers)
     return [body]
 
+############################################
 
-if __name__== "__main__":
-    from wsgiref.simple_server import make_server
-    server = make_server("0.0.0.0", 8000, application)
-    server.serve_forever()
+from erik import Erik
+
+app = Erik()
+
+@app.route("/")
+def index():
+    return "<strong>Hello</strong>"
